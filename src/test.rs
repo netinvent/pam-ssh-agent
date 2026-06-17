@@ -14,6 +14,7 @@ pub(crate) use data;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use uzers::uid_t;
+ use std::path::Path;
 use std::fs::Permissions;
 use std::os::unix::fs::PermissionsExt;
 
