@@ -37,7 +37,7 @@ impl IdentityFilter {
         calling_user: &str,
     ) -> Result<Self> {
         let mut identities = Vec::new();
-        if check_file(authorized_keys_file, False).is_ok() {
+        if check_file(authorized_keys_file, false).is_ok() {
             identities.extend(from_file(authorized_keys_file, false)?);
         } else if ca_keys_file.is_none() && authorized_keys_command.is_none() {
             info!("No valid keys for authentication, {authorized_keys_file:?} does not exist");
@@ -129,7 +129,7 @@ fn check_file(filename: &Path, ignore_permissions: bool) -> Result<()> {
     if filename.exists().not() {
         return Err(anyhow!("File {} not found", filename));
     }
-    let mdata = std::fs::metadata(filename).with_context(|| format("File {} metadata cannot be read", filename))?;
+    let mdata = std::fs::metadata(filename).with_context(|| format!("File {:?} metadata cannot be read", filename))?;
     if mdata.is_file.not() {
         return Err(anyhow!("Path {:?} is not a valid file", filename))
     }
@@ -141,7 +141,7 @@ fn check_file(filename: &Path, ignore_permissions: bool) -> Result<()> {
         return Err(anyhow!("File {:?} should have permissions 600 but has permissions {:o}",
                         filename, file_perms))
     }
-    if mdata.uid() != 0 || mdata.gid != 0 {
+    if mdata.uid() != 0 || mdata.gid() != 0 {
         return Err(anyhow!("File {:?} should be owned by uid 0 and gid 0 (root:root)",
                             filename))
     }
@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn test_read_public_keys() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        set_file_permissions(filename);
+        set_file_permissions(path);
         let filter = IdentityFilter::from_authorized_file(path)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert
