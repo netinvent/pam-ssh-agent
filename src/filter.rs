@@ -181,7 +181,7 @@ mod tests {
     #[test]
     fn test_read_public_keys() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        set_file_permissions(path);
+        let _ = set_file_permissions(path);
         let filter = IdentityFilter::from_authorized_file(path)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert
