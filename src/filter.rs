@@ -130,7 +130,7 @@ fn check_file(filename: &Path, ignore_permissions: bool) -> Result<()> {
         return Err(anyhow!("File {} not found", filename));
     }
     let mdata = std::fs::metadata(filename).with_context(|| format!("File {:?} metadata cannot be read", filename))?;
-    if mdata.is_file.not() {
+    if mdata.is_file().not() {
         return Err(anyhow!("Path {:?} is not a valid file", filename))
     }
     if ignore_permissions {
