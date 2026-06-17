@@ -1,7 +1,6 @@
 use crate::cmd;
 use crate::environment::get_uid;
-use anyhow::Result;
-use anyhow::anyhow;
+use anyhow::{anyhow, Context, Result};
 use log::{debug, error, info};
 use ssh_agent_client_rs::Identity;
 use ssh_agent_client_rs::Identity::{Certificate, PublicKey};
@@ -38,7 +37,7 @@ impl IdentityFilter {
         calling_user: &str,
     ) -> Result<Self> {
         let mut identities = Vec::new();
-        if file_meets_requirements(authorized_keys_file) {
+        if check_file(authorized_keys_file, False).is_ok() {
             identities.extend(from_file(authorized_keys_file, false)?);
         } else if ca_keys_file.is_none() && authorized_keys_command.is_none() {
             info!("No valid keys for authentication, {authorized_keys_file:?} does not exist");
@@ -126,35 +125,27 @@ fn from_file(filename: &Path, ca_keys: bool) -> Result<Vec<Authorized>> {
     )
 }
 
-fn file_meets_requirements(filename: &Path) -> bool {
-    if filename.exists() {
-        if let Ok(mdata) = std::fs::metadata(filename) {
-            if mdata.is_file() {
-                // Using a bitmask on mdata permissions since it returns something like 0o100600
-                let file_perms: u32 = mdata.permissions().mode() & 0o777;
-                if file_perms == 0o600 {
-                    if mdata.uid() == 0 && mdata.gid() == 0 {
-                        return true;
-                    } else {
-                        error!(
-                            "File {:?} should be owned by uid 0 and gid 0 (root:root)",
-                            filename
-                        );
-                    }
-                } else {
-                    error!(
-                        "File {:?} should have permissions 600 but has permissions {:o}",
-                        filename, file_perms
-                    );
-                }
-            } else {
-                error!("Path {:?} is not a valid file", filename);
-            }
-        } else {
-            error!("Cannot get metadata from file {:?}", filename);
-        }
+fn check_file(filename: &Path, ignore_permissions: bool) -> Result<()> {
+    if filename.exists().not() {
+        return Err(anyhow!("File {} not found", filename));
     }
-    false
+    let mdata = std::fs::metadata(filename).with_context(|| format("File {} metadata cannot be read", filename))?;
+    if mdata.is_file.not() {
+        return Err(anyhow!("Path {:?} is not a valid file", filename))
+    }
+    if ignore_permissions {
+        return Ok(())
+    }
+    let file_perms: u32 = mdata.permissions().mode() & 0o777;
+    if file_perms != 0o600 {
+        return Err(anyhow!("File {:?} should have permissions 600 but has permissions {:o}",
+                        filename, file_perms))
+    }
+    if mdata.uid() != 0 || mdata.gid != 0 {
+        return Err(anyhow!("File {:?} should be owned by uid 0 and gid 0 (root:root)",
+                            filename))
+    }
+    Ok(())
 }
 
 fn from_str(buf: &str, what: &str, ca_keys: bool) -> Result<Vec<Authorized>> {
@@ -179,24 +170,18 @@ fn from_str(buf: &str, what: &str, ca_keys: bool) -> Result<Vec<Authorized>> {
 mod tests {
     use crate::filter::IdentityFilter;
     use crate::test::{data, CERT_STR};
+    use crate::test::set_file_permissions;
     use ssh_agent_client_rs::Identity;
     use ssh_key::{Certificate, PublicKey};
     use std::env;
     use std::path::Path;
-    use std::fs::Permissions;
-    use std::os::unix::fs::PermissionsExt;
 
     // This test needs to be run as root, as otherwise it would not be possible to
     // chown / chmod the identity file
     #[test]
     fn test_read_public_keys() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-
-        // make sure root owns the file before checking
-        std::os::unix::fs::chown(path, Some(0), Some(0))?;
-        // Make sure file permissions are 600
-        let perms = Permissions::from_mode(0o600);
-        std::fs::set_permissions(path, perms)?;
+        set_file_permissions(filename);
         let filter = IdentityFilter::from_authorized_file(path)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert

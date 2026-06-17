@@ -168,19 +168,14 @@ mod tests {
     use crate::check_sshd_special_case;
     use crate::filter::IdentityFilter;
     use crate::test::{CannedEnv, DummyEnv, data};
+    use crate::test::set_file_permissions;
     use anyhow::Result;
     use std::path::Path;
-    use std::fs::Permissions;
-    use std::os::unix::fs::PermissionsExt;
 
     #[test]
     fn test_check_sshd_special_case() -> Result<()> {
         let key = Path::new(data!("id_ed25519.pub"));
-        // Make sure file permissions are 600
-        let perms = Permissions::from_mode(0o600);
-        std::fs::set_permissions(key, perms)?;
-        // make sure root owns the file before checking
-        std::os::unix::fs::chown(key, Some(0), Some(0))?;
+        set_file_permissions(key);
         let filter = IdentityFilter::from_authorized_file(key)?;
 
         // happy path, keys match
