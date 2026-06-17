@@ -126,11 +126,11 @@ fn from_file(filename: &Path, ca_keys: bool) -> Result<Vec<Authorized>> {
 }
 
 fn check_file(filename: &Path, ignore_permissions: bool) -> Result<()> {
-    if filename.exists().not() {
+    if !filename.exists() {
         return Err(anyhow!("File {:?} not found", filename));
     }
     let mdata = std::fs::metadata(filename).with_context(|| format!("File {:?} metadata cannot be read", filename))?;
-    if mdata.is_file().not() {
+    if !mdata.is_file() {
         return Err(anyhow!("Path {:?} is not a valid file", filename))
     }
     if ignore_permissions {
