@@ -109,6 +109,7 @@ fn do_authenticate(args: &Args, handle: &PamHandle) -> Result<()> {
         args.authorized_keys_command.as_deref(),
         args.authorized_keys_command_user.as_deref(),
         &calling_user,
+        false,
     )?;
 
     if check_sshd_special_case(handle.get_service().ok(), &filter, UnixEnvironment)? {
@@ -175,8 +176,53 @@ mod tests {
     #[test]
     fn test_check_sshd_special_case() -> Result<()> {
         let key = Path::new(data!("id_ed25519.pub"));
+        let filter = IdentityFilter::from_authorized_file(key, true)?;
+
+        // happy path, keys match
+        assert!(check_sshd_special_case(
+            Some("sshd".to_string()),
+            &filter,
+            CannedEnv::new(vec![include_str!(data!("id_ed25519.pub"))])
+        )?);
+
+        // different key
+        assert!(!check_sshd_special_case(
+            Some("sshd".to_string()),
+            &filter,
+            CannedEnv::new(vec![include_str!(data!("ca_key.pub"))])
+        )?);
+
+        // if service is not set, return false
+        assert!(!check_sshd_special_case(None, &filter, DummyEnv)?);
+
+        // if service is not set to something other than sshd, return false
+        assert!(!check_sshd_special_case(
+            Some("something".to_string()),
+            &filter,
+            DummyEnv
+        )?);
+
+        // not a key
+        assert!(
+            check_sshd_special_case(
+                Some("sshd".to_string()),
+                &filter,
+                CannedEnv::new(vec!["invalid"])
+            )
+            .is_err()
+        );
+
+        Ok(())
+    }
+
+    // This test needs to be run as root otherwise
+    // chown/chmod cannot be done on authorized key files
+    #[test]
+    #[ignore]
+    fn test_check_sshd_special_case_with_permissions() -> Result<()> {
+        let key = Path::new(data!("id_ed25519.pub"));
         let _ = set_file_permissions(key);
-        let filter = IdentityFilter::from_authorized_file(key)?;
+        let filter = IdentityFilter::from_authorized_file(key, false)?;
 
         // happy path, keys match
         assert!(check_sshd_special_case(

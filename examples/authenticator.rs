@@ -15,7 +15,7 @@ fn main() -> Result<()> {
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
         .init();
-    let filter = IdentityFilter::from_authorized_file(Path::new(authorized_keys_path.as_str()))?;
+    let filter = IdentityFilter::from_authorized_file(Path::new(authorized_keys_path.as_str()), false)?;
     let result = authenticate(&filter, client, "")?;
     if result {
         info!(

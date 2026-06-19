@@ -62,7 +62,22 @@ fn test_sk_not_present() -> anyhow::Result<()> {
     // exercise a 'sk' (hardware) key being authorized, but not present.  Correct behavior is to
     // catch the RemoteFailure SSHAgent error on the 'sk' key, and try the next key, which will
     // succeed.
-    let filter = IdentityFilter::from_authorized_file(Path::new(auth_keys))?;
+    let filter = IdentityFilter::from_authorized_file(Path::new(auth_keys), true)?;
     assert!(authenticate(&filter, agent, "")?);
     Ok(())
 }
+
+#[test]
+#[ignore]
+fn test_sk_not_present() -> anyhow::Result<()> {
+    let agent = DummySshAgent::new();
+    let auth_keys = "tests/data/authorized_keys_with_sk";
+    let _ = set_file_permissions(auth_keys);
+    // exercise a 'sk' (hardware) key being authorized, but not present.  Correct behavior is to
+    // catch the RemoteFailure SSHAgent error on the 'sk' key, and try the next key, which will
+    // succeed.
+    let filter = IdentityFilter::from_authorized_file(Path::new(auth_keys), false)?;
+    assert!(authenticate(&filter, agent, "")?);
+    Ok(())
+}
+
