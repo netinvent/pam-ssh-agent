@@ -218,30 +218,32 @@ mod tests {
         Ok(())
     }
 
-
     // This test needs to be run as root, as otherwise it would not be possible to
     // chown / chmod the identity file
     #[test]
     #[ignore]
-    fn test_read_public_keys_with_bad_permissions() -> anyhow::Result<()> {
+    fn test_read_public_keys_with_permissions() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        assert!(set_file_permissions(path, 0o700, 0, 0).is_ok());
-        let filter = IdentityFilter::from_authorized_file(path, false)?;
-        assert!(filter.keys.len() == 0);
-        assert!(set_file_permissions(path, 0o600, 0, 0).is_ok());
-        let filter = IdentityFilter::from_authorized_file(path, false)?;
-        assert!(filter.keys.len() == 0);
-        Ok(())
-    }
 
-    // This test needs to be run as root, as otherwise it would not be possible to
-    // chown / chmod the identity file
-    #[test]
-    #[ignore]
-    fn test_read_public_keys_with_good_permissions() -> anyhow::Result<()> {
-        let path = Path::new(data!("authorized_keys"));
-        assert!(set_file_permissions(path, 0o600, 0, 0).is_ok());
+        let perm_result = set_file_permissions(path, 0o700, 0, 0);
+        assert!(perm_result.is_ok());
         let filter = IdentityFilter::from_authorized_file(path, false)?;
+        assert!(filter.keys.len() == 0);
+
+        let perm_result = set_file_permissions(path, 0o600, 1000, 0);
+        assert!(perm_result.is_ok());
+        let filter = IdentityFilter::from_authorized_file(path, false)?;
+        assert!(filter.keys.len() == 0);
+
+        let perm_result = set_file_permissions(path, 0o600, 0, 1000);
+        assert!(perm_result.is_ok());
+        let filter = IdentityFilter::from_authorized_file(path, false)?;
+        assert!(filter.keys.len() == 0);
+
+        let perm_result = set_file_permissions(path, 0o600, 0, 0);
+        assert!(perm_result.is_ok());
+        let filter = IdentityFilter::from_authorized_file(path, false)?;
+        assert!(filter.keys.len() > 0);
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert
         let cert = Certificate::from_openssh(CERT_STR)?;
@@ -275,6 +277,7 @@ mod tests {
 
         Ok(())
     }
+
 
     // this test needs to be run as root, as otherwise it would not be possible to
     // drop privileges
