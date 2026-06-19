@@ -4,6 +4,7 @@ use signature::Signer;
 use ssh_agent_client_rs::{Error as SACError, Identity};
 use ssh_key::{Algorithm, PrivateKey, PublicKey, Signature};
 use std::path::Path;
+use crate::test::set_file_permissions;
 
 struct DummySshAgent {
     key: PrivateKey,
@@ -69,7 +70,7 @@ fn test_sk_not_present() -> anyhow::Result<()> {
 
 #[test]
 #[ignore]
-fn test_sk_not_present() -> anyhow::Result<()> {
+fn test_sk_not_present_with_permissions() -> anyhow::Result<()> {
     let agent = DummySshAgent::new();
     let auth_keys = "tests/data/authorized_keys_with_sk";
     let _ = set_file_permissions(auth_keys);

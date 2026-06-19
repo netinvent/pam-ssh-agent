@@ -4,6 +4,7 @@ use signature::Signer;
 use ssh_agent_client_rs::Identity;
 use ssh_key::{PrivateKey, PublicKey, Signature};
 use std::path::Path;
+use crate::test::set_file_permissions;
 
 struct DummySshAgent {
     key: PrivateKey,
