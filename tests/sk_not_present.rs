@@ -1,6 +1,6 @@
 use pam_ssh_agent::filter::IdentityFilter;
 use pam_ssh_agent::{SSHAgent, authenticate};
-use pam_ssh_agent::test::set_file_permissions;
+use pam_ssh_agent::file_permissions::set_file_permissions;
 use signature::Signer;
 use ssh_agent_client_rs::{Error as SACError, Identity};
 use ssh_key::{Algorithm, PrivateKey, PublicKey, Signature};

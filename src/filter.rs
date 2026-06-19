@@ -173,7 +173,8 @@ fn from_str(buf: &str, what: &str, ca_keys: bool) -> Result<Vec<Authorized>> {
 #[cfg(test)]
 mod unittests {
     use crate::filter::IdentityFilter;
-    use crate::test::{data, CERT_STR, set_file_permissions};
+    use crate::test::{data, CERT_STR,};
+    use crate::file_permissions::set_file_permissions;
     use ssh_agent_client_rs::Identity;
     use ssh_key::{Certificate, PublicKey};
     use std::env;
