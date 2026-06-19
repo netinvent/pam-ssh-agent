@@ -171,10 +171,9 @@ fn from_str(buf: &str, what: &str, ca_keys: bool) -> Result<Vec<Authorized>> {
 }
 
 #[cfg(test)]
-mod tests {
+mod unittests {
     use crate::filter::IdentityFilter;
-    use crate::test::{data, CERT_STR};
-    #[path = "../../../tests/file_permissions.rs"] mod file_permissions;
+    use crate::test::{data, CERT_STR, set_permissions};
     use ssh_agent_client_rs::Identity;
     use ssh_key::{Certificate, PublicKey};
     use std::env;
@@ -225,7 +224,7 @@ mod tests {
     #[ignore]
     fn test_read_public_keys_with_permissions() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        let _ = file_permissions::set_file_permissions(path);
+        let _ = set_file_permissions(path);
         let filter = IdentityFilter::from_authorized_file(path, false)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert

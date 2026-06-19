@@ -168,8 +168,7 @@ fn get_path(args: &Args) -> Result<String> {
 mod tests {
     use crate::check_sshd_special_case;
     use crate::filter::IdentityFilter;
-    use crate::test::{CannedEnv, DummyEnv, data};
-    #[path = "../../tests/file_permissions.rs"] mod file_permissions;
+    use crate::test::{CannedEnv, DummyEnv, data, set_permissions};
     use anyhow::Result;
     use std::path::Path;
 
@@ -221,7 +220,7 @@ mod tests {
     #[ignore]
     fn test_check_sshd_special_case_with_permissions() -> Result<()> {
         let key = Path::new(data!("id_ed25519.pub"));
-        let _ = file_permissions::set_file_permissions(key);
+        let _ = set_file_permissions(key);
         let filter = IdentityFilter::from_authorized_file(key, false)?;
 
         // happy path, keys match
