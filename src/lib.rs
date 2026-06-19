@@ -168,7 +168,7 @@ fn get_path(args: &Args) -> Result<String> {
 mod tests {
     use crate::check_sshd_special_case;
     use crate::filter::IdentityFilter;
-    use crate::test::{CannedEnv, DummyEnv, data, set_permissions};
+    use crate::test::{CannedEnv, DummyEnv, data, set_file_permissions};
     use anyhow::Result;
     use std::path::Path;
 
