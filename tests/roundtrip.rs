@@ -1,10 +1,10 @@
 use pam_ssh_agent::filter::IdentityFilter;
 use pam_ssh_agent::{SSHAgent, authenticate};
+use crate::test::set_file_permissions;
 use signature::Signer;
 use ssh_agent_client_rs::Identity;
 use ssh_key::{PrivateKey, PublicKey, Signature};
 use std::path::Path;
-use pam_ssh_agent::test::set_file_permissions;
 
 struct DummySshAgent {
     key: PrivateKey,

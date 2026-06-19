@@ -14,9 +14,6 @@ pub(crate) use data;
 use std::cell::RefCell;
 use std::collections::VecDeque;
 use uzers::uid_t;
- use std::path::Path;
-use std::fs::Permissions;
-use std::os::unix::fs::PermissionsExt;
 
 pub(crate) const CERT_STR: &str = include_str!(data!("cert.pub"));
 
@@ -108,12 +105,4 @@ impl PamHandleExt for DummyHandle {
     fn get_service(&self) -> Result<String> {
         panic!()
     }
-}
-
-pub fn set_file_permissions(filename: &Path) -> Result<()> {
-    // authorized_keys file should be owned by root:root and have 0600 permissions
-    let _ = std::os::unix::fs::chown(filename, Some(0), Some(0)).with_context(|| format!("Tests tried to set file {:?} ownership to root:root but failed", filename));
-    let perms = Permissions::from_mode(0o600);
-    let _ = std::fs::set_permissions(filename, perms).with_context(|| format!("Tests tried to set permissions of file {:?} to 0o600 but failed", filename));
-    Ok(())
 }
