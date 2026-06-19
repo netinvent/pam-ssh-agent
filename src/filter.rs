@@ -223,9 +223,21 @@ mod tests {
     // chown / chmod the identity file
     #[test]
     #[ignore]
-    fn test_read_public_keys_with_permissions() -> anyhow::Result<()> {
+    fn test_read_public_keys_with_bad_permissions() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        let _ = set_file_permissions(path);
+        let _ = set_file_permissions(path, 0o700, 0, 0);
+        let filter = IdentityFilter::from_authorized_file(path, false)?;
+        assert!(filter.is_err());
+        Ok(())
+    }
+
+    // This test needs to be run as root, as otherwise it would not be possible to
+    // chown / chmod the identity file
+    #[test]
+    #[ignore]
+    fn test_read_public_keys_with_good_permissions() -> anyhow::Result<()> {
+        let path = Path::new(data!("authorized_keys"));
+       let _ = set_file_permissions(path, 0o600, 0, 0);
         let filter = IdentityFilter::from_authorized_file(path, false)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert

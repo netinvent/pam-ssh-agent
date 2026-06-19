@@ -73,7 +73,7 @@ fn test_sk_not_present() -> anyhow::Result<()> {
 fn test_sk_not_present_with_permissions() -> anyhow::Result<()> {
     let agent = DummySshAgent::new();
     let auth_keys = Path::new("tests/data/authorized_keys_with_sk");
-    let _ = set_file_permissions(auth_keys);
+    let _ = set_file_permissions(path, 0o600, 0, 0);
     // exercise a 'sk' (hardware) key being authorized, but not present.  Correct behavior is to
     // catch the RemoteFailure SSHAgent error on the 'sk' key, and try the next key, which will
     // succeed.
