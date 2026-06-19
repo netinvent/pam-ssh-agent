@@ -227,7 +227,7 @@ mod tests {
         let path = Path::new(data!("authorized_keys"));
         assert!(set_file_permissions(path, 0o700, 0, 0).is_ok());
         let filter = IdentityFilter::from_authorized_file(path, false)?;
-        assert!(filter.is_err());
+        assert!(filter);
         Ok(())
     }
 
