@@ -40,7 +40,7 @@ impl IdentityFilter {
         let mut identities = Vec::new();
         let check_file_result = check_file(authorized_keys_file, ignore_file_permissions);
         if check_file_result.is_err() {
-            error!(check_file_result.unwrap_err())
+            error!("{}", check_file_result.unwrap_err())
         } else if check_file_result.is_ok() {
             identities.extend(from_file(authorized_keys_file, false)?);
         } else if ca_keys_file.is_none() && authorized_keys_command.is_none() {
