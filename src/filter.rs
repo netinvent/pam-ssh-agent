@@ -225,7 +225,7 @@ mod tests {
     #[ignore]
     fn test_read_public_keys_with_permissions() -> anyhow::Result<()> {
         let path = Path::new(data!("authorized_keys"));
-        let _ = set_file_permissions(path);
+        let _ = file_permissions::set_file_permissions(path);
         let filter = IdentityFilter::from_authorized_file(path, false)?;
 
         // authorized_keys contains the certificate authority key for the CERT_STR cert
@@ -272,7 +272,7 @@ mod tests {
             Some(data!("test.sh")),
             None,
             &env::var("USER")?,
-            true
+            true,
         )?;
         let identity: Identity =
             PublicKey::from_openssh(include_str!(data!("id_ed25519.pub")))?.into();
