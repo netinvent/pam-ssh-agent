@@ -58,7 +58,7 @@ fn test_roundtrip_with_permissions() -> anyhow::Result<()> {
     // Yes, it is a bit weird that compile time paths resolve from this dir but run time
     // paths resolve from the top dir. I'll come up with a better solution later.
     let auth_keys = Path::new("tests/data/authorized_keys");
-    assert!(set_file_permissions(path, 0o600, 0, 0).is_ok());
+    assert!(set_file_permissions(auth_keys, 0o600, 0, 0).is_ok());
     // logging for the test case
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
