@@ -12,6 +12,7 @@ mod pamext;
 #[cfg(test)]
 mod test;
 mod verify;
+pub mod file_permissions;
 
 pub use crate::agent::SSHAgent;
 pub use crate::auth::authenticate;
