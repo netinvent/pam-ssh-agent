@@ -171,7 +171,7 @@ fn from_str(buf: &str, what: &str, ca_keys: bool) -> Result<Vec<Authorized>> {
 }
 
 #[cfg(test)]
-mod unittests {
+mod tests {
     use crate::filter::IdentityFilter;
     use crate::test::{data, CERT_STR};
     use crate::file_permissions::set_file_permissions;
