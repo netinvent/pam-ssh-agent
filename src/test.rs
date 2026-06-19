@@ -9,7 +9,7 @@ macro_rules! data {
 
 use crate::environment::Environment;
 use crate::pamext::PamHandleExt;
-use anyhow::{Context, Result};
+use anyhow::Result;
 pub(crate) use data;
 use std::cell::RefCell;
 use std::collections::VecDeque;
