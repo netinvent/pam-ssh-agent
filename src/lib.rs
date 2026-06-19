@@ -222,7 +222,7 @@ mod tests {
     #[ignore]
     fn test_check_sshd_special_case_with_permissions() -> Result<()> {
         let key = Path::new(data!("id_ed25519.pub"));
-        let _ = set_file_permissions(path, 0o600, 0, 0);
+        assert!(set_file_permissions(key, 0o600, 0, 0), is_ok());
         let filter = IdentityFilter::from_authorized_file(key, false)?;
 
         // happy path, keys match
