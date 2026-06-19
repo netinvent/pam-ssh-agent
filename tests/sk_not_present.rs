@@ -4,7 +4,7 @@ use signature::Signer;
 use ssh_agent_client_rs::{Error as SACError, Identity};
 use ssh_key::{Algorithm, PrivateKey, PublicKey, Signature};
 use std::path::Path;
-use crate::test::set_file_permissions;
+use pam_ssh_agent::test::set_file_permissions;
 
 struct DummySshAgent {
     key: PrivateKey,
@@ -72,12 +72,12 @@ fn test_sk_not_present() -> anyhow::Result<()> {
 #[ignore]
 fn test_sk_not_present_with_permissions() -> anyhow::Result<()> {
     let agent = DummySshAgent::new();
-    let auth_keys = "tests/data/authorized_keys_with_sk";
+    let auth_keys = Path::new("tests/data/authorized_keys_with_sk");
     let _ = set_file_permissions(auth_keys);
     // exercise a 'sk' (hardware) key being authorized, but not present.  Correct behavior is to
     // catch the RemoteFailure SSHAgent error on the 'sk' key, and try the next key, which will
     // succeed.
-    let filter = IdentityFilter::from_authorized_file(Path::new(auth_keys), false)?;
+    let filter = IdentityFilter::from_authorized_file(auth_keys, false)?;
     assert!(authenticate(&filter, agent, "")?);
     Ok(())
 }

@@ -4,7 +4,7 @@ use signature::Signer;
 use ssh_agent_client_rs::Identity;
 use ssh_key::{PrivateKey, PublicKey, Signature};
 use std::path::Path;
-use crate::test::set_file_permissions;
+use pam_ssh_agent::test::set_file_permissions;
 
 struct DummySshAgent {
     key: PrivateKey,
@@ -57,13 +57,13 @@ fn test_roundtrip_with_permissions() -> anyhow::Result<()> {
     let agent = DummySshAgent::new();
     // Yes, it is a bit weird that compile time paths resolve from this dir but run time
     // paths resolve from the top dir. I'll come up with a better solution later.
-    let auth_keys = "tests/data/authorized_keys";
+    let auth_keys = Path::new("tests/data/authorized_keys");
     let _ = set_file_permissions(auth_keys);
     // logging for the test case
     env_logger::builder()
         .filter_level(log::LevelFilter::Info)
         .init();
-    let filter = IdentityFilter::from_authorized_file(Path::new(auth_keys),false)?;
+    let filter = IdentityFilter::from_authorized_file(auth_keys,false)?;
     assert!(authenticate(&filter, agent, "")?);
     Ok(())
 }
